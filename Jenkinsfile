@@ -18,7 +18,7 @@ pipeline {
                 '''
             }
         }
-# quick test to check if the application is working before running the full test suite
+// quick test to check if the application is working before running the full test suite
         stage('Run Tests') {
             steps {
                 sh '''
