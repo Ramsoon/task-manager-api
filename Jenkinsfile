@@ -35,7 +35,7 @@ pipeline {
                 '''
             }
         }
-
+// deploy the application to the server using SSH and Docker
         stage('Deploy') {
             steps {
                 sshagent(['deploy-server']) {
