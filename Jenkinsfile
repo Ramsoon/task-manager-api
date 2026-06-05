@@ -28,11 +28,23 @@ pipeline {
             }
         }
 
-        stage('Build Docker Image') {
+        stage('Build and Push Docker Image') {
             steps {
-                sh '''
-                docker build -t task-manager-api:latest .
-                '''
+                withCredentials([
+                    usernamePassword(
+                        credentialsId: 'dockerhub',
+                        usernameVariable: 'DOCKER_USER',
+                        passwordVariable: 'DOCKER_PASS'
+                    )
+                ]) {
+                    sh '''
+                    echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin
+
+                    docker build -t $DOCKER_USER/task-manager-api:latest .
+
+                    docker push $DOCKER_USER/task-manager-api:latest
+                    '''
+                }
             }
         }
 // deploy the application to the server using SSH and Docker
@@ -44,10 +56,12 @@ pipeline {
                         docker stop task-manager-api || true
                         docker rm task-manager-api || true
 
+                        docker pull successtech/task-manager-api:latest
+
                         docker run -d \
                             --name task-manager-api \
                             -p 2020:8000 \
-                            task-manager-api:latest
+                            successtech/task-manager-api:latest
                     "
                     '''
                 }
