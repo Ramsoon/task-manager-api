@@ -38,15 +38,19 @@ pipeline {
 
         stage('Deploy') {
             steps {
-                sh '''
-                docker stop task-manager-api || true
-                docker rm task-manager-api || true
+                sshagent(['deploy-server']) {
+                    sh '''
+                    ssh -o StrictHostKeyChecking=no deploy@195.7.5.147 "
+                        docker stop task-manager-api || true
+                        docker rm task-manager-api || true
 
-                docker run -d \
-                    --name task-manager-api \
-                    -p 8000:8000 \
-                    task-manager-api:latest
-                '''
+                        docker run -d \
+                            --name task-manager-api \
+                            -p 2020:8000 \
+                            task-manager-api:latest
+                    "
+                    '''
+                }
             }
         }
 
@@ -54,7 +58,7 @@ pipeline {
             steps {
                 sh '''
                 sleep 10
-                curl http://localhost:8000/api/health/
+                curl http://localhost:2020/api/health/
                 '''
             }
         }
