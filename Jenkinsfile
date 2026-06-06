@@ -70,10 +70,14 @@ pipeline {
 
         stage('Health Check') {
             steps {
-                sh '''
-                sleep 10
-                curl http://localhost:2020/api/health/
-                '''
+                sshagent(['deploy-server']) {
+                    sh '''
+                    ssh -o StrictHostKeyChecking=no deploy@195.7.5.147 "
+                        sleep 10
+                        curl http://localhost:2020/api/health/
+                    "
+                    '''
+                }
             }
         }
     }
